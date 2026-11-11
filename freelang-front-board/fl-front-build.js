@@ -1929,7 +1929,8 @@ function checkRouteShadow(routes) {
         if (ds[k].startsWith(':')) continue;       // 동적 위치 — 무엇이든 매치
         if (ds[k] !== ss[k]) { shadow = false; break; }
       }
-      if (shadow) hits.push({ dyn: d.route, stat: s.route, file: path.basename(d.file) });
+      if (shadow && routes.indexOf(d) < routes.indexOf(s))
+        hits.push({ dyn: d.route, stat: s.route, file: path.basename(d.file) });
     }
   }
   if (hits.length === 0) { console.log('  \x1b[32m✅ 라우트 가로채기 위험 없음\x1b[0m'); return; }

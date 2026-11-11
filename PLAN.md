@@ -21,6 +21,7 @@ Implement the same notice-board workload in two isolated applications:
 3. Implement and build the FreeLang Front app.
 4. Smoke-test equivalent HTML/API/write paths and document measurement commands.
 5. Record functional evidence and benchmark protocol without changing application behavior.
+6. Fix verified framework diagnostics before relying on benchmark results.
 
 ## Scope notes
 
