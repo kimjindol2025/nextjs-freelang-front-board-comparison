@@ -1,0 +1,6 @@
+(defn render [req]
+  (let [id (str-to-num (get (get req "params") "id" "0"))
+        post (board-post id)]
+    (if (= post nil)
+      (server-status 404 (json-stringify {:error "게시글을 찾을 수 없습니다."}))
+      (server-json post))))

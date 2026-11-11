@@ -1,0 +1,24 @@
+{
+  "name": "nextjs-board-comparison",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "NEXT_TEST_WASM=1 NEXT_TEST_WASM_DIR=./node_modules/@next/swc-wasm-nodejs next build --webpack",
+    "start": "next start",
+    "db:init": "sqlite3 data/board.db < data/schema.sql && sqlite3 data/board.db < data/seed.sql"
+  },
+  "dependencies": {
+    "next": "16.4.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "devDependencies": {
+    "@next/swc-wasm-nodejs": "16.4.6",
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "typescript": "5.9.3"
+  },
+  "packageManager": "pnpm@10.23.0"
+}

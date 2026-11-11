@@ -1,0 +1,51 @@
+(defn db-config [] {:type "sqlite" :path "../shared-data/board.db"})
+
+(defn query-value [req key]
+  (get (get req "query") key ""))
+
+(defn page-number [req]
+  (let [raw (query-value req "page")
+        n (str-to-num raw)]
+    (if (> n 0) n 1)))
+
+(defn board-query [q]
+  (if (= q "")
+    ["" []]
+    ["WHERE title LIKE ? OR body LIKE ?" [(str "%" q "%") (str "%" q "%")]]))
+
+(defn board-posts [q page]
+  (let [parts (board-query q)
+        where (first parts)
+        params (last parts)
+        offset (* (- page 1) 20)]
+    (db-query (db-config) (str "SELECT id, title, body, author, created_at, likes FROM posts " where " ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?") (concat params [20 offset]))))
+
+(defn board-total [q]
+  (let [parts (board-query q)
+        row (first (db-query (db-config) (str "SELECT COUNT(*) AS count FROM posts " (first parts)) (last parts)))]
+    (get row "count" 0)))
+
+(defn board-post [id]
+  (first (db-query (db-config) "SELECT id, title, body, author, created_at, likes FROM posts WHERE id = ?" [id])))
+
+(defn valid-text [value max-len]
+  (and (> (length value) 0) (<= (length value) max-len)))
+
+(defn form-error [title body author]
+  (if (not (valid-text title 100)) "제목은 1~100자로 입력하세요."
+    (if (not (valid-text body 5000)) "본문은 1~5,000자로 입력하세요."
+      (if (not (valid-text author 50)) "작성자는 1~50자로 입력하세요." nil))))
+
+(defn post-card [post]
+  (h "article" {:class "card"}
+    (str (h "h2" {} (h "a" {:href (str "/posts/" (get post "id")) :data-spa "1"} (get post "title")))
+         (h "p" {:class "summary"} (get post "body"))
+         (h "p" {:class "meta"} (str (get post "author") " · " (str-slice (get post "created_at") 0 10) " · 좋아요 " (get post "likes"))))))
+
+(defn new-post-form [error title body author]
+  (h "form" {:class "editor" :method "post"}
+    (str (h "div" {:class "field"} (str (h "label" {:for "title"} "제목") (h! "input" {:id "title" :name "title" :maxlength "100" :required "required" :value title})))
+         (h "div" {:class "field"} (str (h "label" {:for "body"} "본문") (h "textarea" {:id "body" :name "body" :maxlength "5000" :required "required" :rows "12"} body)))
+         (h "div" {:class "field"} (str (h "label" {:for "author"} "작성자") (h! "input" {:id "author" :name "author" :maxlength "50" :required "required" :value author})))
+         (if (= error nil) "" (h "p" {:class "error" :role "alert" :aria-live "polite"} error))
+         (h "button" {:type "submit"} "등록"))))

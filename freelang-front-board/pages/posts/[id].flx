@@ -1,0 +1,25 @@
+(island LikeButton []
+  (let [pending (atom false)
+        id (.substring (.-pathname (.-location window)) 7)]
+    (h "button" {:type "button" :disabled @pending
+                 :on-click (fn []
+                   (do (reset! pending true)
+                       (fetch-post! (str "/api/posts/" id "/like") {}
+                         (fn [_] (.reload (.-location window))))))}
+      (if @pending "처리 중…" "좋아요"))))
+
+(defn render [req]
+  (let [id (str-to-num (get (get req "params") "id" "0"))
+        post (board-post id)]
+    (if (= post nil)
+      (server-status 404 (layout-html "찾을 수 없음" (str (h "h1" {} "404") (h "p" {} "게시글을 찾을 수 없습니다.")) req))
+      (layout-html "게시글 상세"
+        (str (h "article" {:class "detail"}
+               (str (h "a" {:href "/" :data-spa "1"} "← 목록으로")
+                    (h "h1" {} (get post "title"))
+                    (h "p" {:class "meta"} (str (get post "author") " · " (str-slice (get post "created_at") 0 10) " · 좋아요 " (get post "likes")))
+                    (h "p" {:class "body"} (get post "body"))
+                    "ISLAND_PLACEHOLDER"
+                    (h "div" {:class "actions"} (str (h "button" {:type "button" :disabled "disabled"} "수정") (h "button" {:type "button" :disabled "disabled"} "삭제")))))
+             "ISLAND_SCRIPTS")
+        req))))

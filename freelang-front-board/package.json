@@ -1,0 +1,9 @@
+{
+  "name": "freelang-front-board-comparison",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "build": "node fl-front-build.js",
+    "start": "node fl-front-build.js && node runtime/bootstrap.js run _app.fl"
+  }
+}

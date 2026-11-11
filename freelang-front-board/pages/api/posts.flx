@@ -1,0 +1,18 @@
+(defn render [req]
+  (let [q (query-value req "q")
+        page (page-number req)
+        posts (board-posts q page)
+        total (board-total q)]
+    (server-json {:posts posts :total total :page page :pageSize 20 :totalPages (ceil (/ total 20))})))
+
+(defn render_post [req]
+  (let [body (get req "body")
+        title (get body "title" "")
+        content (get body "body" "")
+        author (get body "author" "")
+        error (form-error title content author)]
+    (if (= error nil)
+      (do (db-exec (db-config) "INSERT INTO posts (title, body, author) VALUES (?, ?, ?)" [title content author])
+          (let [post (first (db-query (db-config) "SELECT id, title, body, author, created_at, likes FROM posts WHERE id = last_insert_rowid()" []))]
+            (server-json post)))
+      (server-status 400 (json-stringify {:errors {:form error}})))))

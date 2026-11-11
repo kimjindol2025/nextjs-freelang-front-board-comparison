@@ -1,0 +1,13 @@
+(defn render [req]
+  (let [q (query-value req "q")
+        page (page-number req)
+        posts (board-posts q page)
+        total (board-total q)
+        previous (if (> page 1) (- page 1) 1)
+        next (+ page 1)]
+    (layout-html "공지사항"
+      (str (h "div" {:class "row"} (str (h "div" {} (str (h "h1" {} "공지사항") (h "p" {:class "meta"} (str total "건의 게시글")))) (h "a" {:class "button-link" :href "/posts/new" :data-spa "1"} "글쓰기")))
+           (h "form" {:class "search" :method "get"} (str (h "label" {:for "q"} "게시글 검색") (h "div" {:class "search-row"} (str (h! "input" {:id "q" :name "q" :type "search" :value q}) (h "button" {:type "submit"} "검색")))))
+           (if (= (length posts) 0) (h "p" {:class "card"} "게시글이 없습니다.") (arr-join (map post-card posts) ""))
+           (h "nav" {:class "pagination" :aria-label "페이지 이동"} (str (if (> page 1) (h "a" {:href (str "/?q=" q "&page=" previous) :data-spa "1"} "이전") "") (h "a" {:href (str "/?q=" q "&page=" page) :aria-current "page" :data-spa "1"} (str page)) (if (< (* page 20) total) (h "a" {:href (str "/?q=" q "&page=" next) :data-spa "1"} "다음") ""))))
+      req)))

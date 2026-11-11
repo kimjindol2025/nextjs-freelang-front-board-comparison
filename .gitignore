@@ -1,0 +1,12 @@
+**/node_modules/
+**/.next/
+**/.tools/
+**/tsconfig.tsbuildinfo
+**/_app.fl
+**/_app.fl.out.js
+**/.build-cache.json
+**/.build-state.json
+**/public/app.css
+shared-data/board.db
+results/raw/*
+!results/raw/.gitkeep

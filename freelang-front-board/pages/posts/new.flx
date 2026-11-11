@@ -1,0 +1,13 @@
+(defn render [req]
+  (layout-html "글쓰기" (str (h "h1" {} "글쓰기") (new-post-form nil "" "" "")) req))
+
+(defn render_post [req]
+  (let [title (form-get req "title")
+        body (form-get req "body")
+        author (form-get req "author")
+        error (form-error title body author)]
+    (if (= error nil)
+      (do (db-exec (db-config) "INSERT INTO posts (title, body, author) VALUES (?, ?, ?)" [title body author])
+          (let [row (first (db-query (db-config) "SELECT last_insert_rowid() AS id" []))]
+            (server-redirect (str "/posts/" (get row "id")))))
+      (layout-html "글쓰기" (str (h "h1" {} "글쓰기") (new-post-form error title body author)) req))))
